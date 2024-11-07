@@ -3,7 +3,7 @@ import random
 
 class Player:
     def __init__(self):
-        self.image = pygame.transform.scale(pygame.image.load("images/spaceInvaders/spaceship.png"), (64, 64))
+        self.image = pygame.transform.scale(pygame.image.load("images/spaceInvaders/spaceship.png"), (64, 64)).convert_alpha()
         self.x, self.y = 420, 450
         self.x_change, self.y_change = 0, 0
         self.hitbox = pygame.Rect(self.x, self.y, 64, 64)
@@ -21,7 +21,7 @@ class Player:
 
 class Enemy:
     def __init__(self):
-        self.image = pygame.transform.scale(pygame.image.load("images/spaceInvaders/monster.png"), (64, 64))
+        self.image = pygame.transform.scale(pygame.image.load("images/spaceInvaders/monster.png"), (64, 64)).convert_alpha()
         self.x = random.randint(0, 900)
         self.y = random.randint(10, 70)
         self.x_change = 0.20
@@ -43,7 +43,7 @@ class Enemy:
 
 class Bullet:
     def __init__(self):
-        self.image = pygame.transform.scale(pygame.image.load("images/spaceInvaders/bullet.png"), (20, 50))
+        self.image = pygame.transform.scale(pygame.image.load("images/spaceInvaders/bullet.png"), (20, 50)).convert_alpha()
         self.x, self.y = 0, 0
         self.y_change = 0.60
         self.state = "ready"
@@ -71,7 +71,7 @@ class Game:
         pygame.mixer.init()
         self.screen = pygame.display.set_mode((900, 600))
         self.background = pygame.image.load("images/spaceInvaders/bg.png").convert()
-        pygame.mixer.music.load("sounds/spaceBGM.mp3")
+        pygame.mixer.music.load("sounds/spaceInvaders/spaceBGM.mp3")
         pygame.mixer.music.play(-1)
         pygame.display.set_caption("Space Invaders")
         icon = pygame.image.load("images/spaceInvaders/ufo.png")
@@ -94,6 +94,7 @@ class Game:
         self.screen.blit(score_text, (10, 10))
 
     def game_over_screen(self):
+        pygame.mixer.Sound("sounds/spaceInvaders/gameOver.mp3").play()
         game_over_font = pygame.font.Font("freesansbold.ttf", 64)
         game_over_text = game_over_font.render("GAME OVER", True, (255, 0, 0))
         self.screen.blit(game_over_text, (250, 250))
@@ -140,7 +141,7 @@ class Game:
                     if event.key in self.key_states:
                         self.key_states[event.key] = True
                     if event.key == pygame.K_SPACE and self.bullet.state == "ready":
-                        pygame.mixer.Sound("sounds/lasersound.mp3").play()
+                        pygame.mixer.Sound("sounds/spaceInvaders/lasersound.mp3").play()
                         self.bullet.fire(self.player.x + 10, self.player.y)
                     if event.key == pygame.K_p:
                         self.pause_menu()
@@ -166,10 +167,11 @@ class Game:
             for enemy in self.enemies:
                 enemy.update_position()
                 if self.player.hitbox.colliderect(enemy.hitbox):
+                    pygame.mixer.music.pause()
                     self.game_over_screen()
                     self.running = False
                 elif self.bullet.hitbox.colliderect(enemy.hitbox):
-                    pygame.mixer.Sound("sounds/explosion.mp3").play()
+                    pygame.mixer.Sound("sounds/spaceInvaders/explosion.mp3").play()
                     self.bullet.state = "ready"
                     self.bullet.hitbox.topleft = (-100, -100)
                     enemy.x, enemy.y = random.randint(0, 836), random.randint(10, 70)
